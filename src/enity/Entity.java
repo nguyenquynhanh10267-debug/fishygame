@@ -2,7 +2,7 @@ package enity;
 
 import java.awt.image.BufferedImage;
 
-public class Enity {
+public class Entity {
     
     public int x, y;
     public int speed;
@@ -17,4 +17,5 @@ public class Enity {
 
     public int spriteCounter = 0;
     public int spriteNum = 1;
+    public String name;
 }

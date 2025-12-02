@@ -8,7 +8,7 @@ import java.awt.geom.AffineTransform;
 import main.GamePanel;
 import main.KeyHandler;
 
-public class Player extends Enity {
+public class Player extends Entity {
     GamePanel gp;
     KeyHandler keyH;
     // >> SỐ LƯỢNG FRAME CHO MỖI TRẠNG THÁI

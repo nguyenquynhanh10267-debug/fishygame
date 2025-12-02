@@ -8,9 +8,9 @@ import javax.swing.JPanel;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+
 import enity.Player;
-
-
+import enity.Aquarium;
 import java.awt.Graphics;
 public class GamePanel extends JPanel implements Runnable {
     //screen settings
@@ -20,11 +20,12 @@ public class GamePanel extends JPanel implements Runnable {
     public final int screenWidth = 960; // 640 pixels
     public final int screenHeight = 730; // 480 pixels
     public BufferedImage background;
-
+    
     int FPS =60;
     
     KeyHandler keyH = new KeyHandler();
     Player player = new Player(this, keyH);
+    Aquarium aquarium = new Aquarium(this);
     Thread gameThread; 
 
     public GamePanel () {
@@ -80,6 +81,7 @@ public class GamePanel extends JPanel implements Runnable {
     public void update() {
         
         player.update();
+        aquarium.update();
     }
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -89,6 +91,7 @@ public class GamePanel extends JPanel implements Runnable {
         //player
         Graphics2D g2 = (Graphics2D)g;
         player.draw(g2);
+        aquarium.draw(g2);
         g2.dispose();// dừng tài nguyên
     }
 }
