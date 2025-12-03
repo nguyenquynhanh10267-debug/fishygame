@@ -2,216 +2,166 @@ package entity;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-
-import javax.imageio.ImageIO;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
 import main.GamePanel;
-import main.KeyHandler;
+import main.MouseHandler;
 
 public class Player extends Entity {
     GamePanel gp;
-    KeyHandler keyH;
-    // >> SỐ LƯỢNG FRAME CHO MỖI TRẠNG THÁI
-    final int SWIM_IDLE_FRAMES = 12;
+    MouseHandler mouseH;
+    
+    // Animation Constants
+    final int SWIM_IDLE_FRAMES = 12; // Cần khai báo lại nếu không thừa kế từ Entity cha đủ
     final int TURN_FRAMES = 6;
     
-    private String currentFacing = "right"; // Mặc định cá hướng sang phải
-
-    public Player(GamePanel gp, KeyHandler keyH) {
+    // State variables
+    private String currentFacing = "right"; 
+    
+    public Player(GamePanel gp, MouseHandler mouseH) {
         this.gp = gp;
-        this.keyH = keyH;
-        // Khởi tạo mảng frame
+        this.mouseH = mouseH;
+        
+        // Khởi tạo mảng frames (QUAN TRỌNG: Phải khởi tạo mảng trước khi load ảnh)
         idleFrames = new BufferedImage[SWIM_IDLE_FRAMES];
         swimFrames = new BufferedImage[SWIM_IDLE_FRAMES];
         turnFrames = new BufferedImage[TURN_FRAMES];
-        setDefaultValues();
         
-        getPlayerImageByLoop();
+        setDefaultValues();
+        getPlayerImageByLoop(); // Phải gọi hàm này để load ảnh
     }
 
     public void setDefaultValues() {
         x = gp.screenWidth / 2 - gp.tileSize / 2;
         y = gp.screenHeight / 2 - gp.tileSize / 2;
-        speed = 7;
+        speed = 5;
+        width = 64; 
+        height = 64;
         state = "idle";
-        spriteNum=0;
-        currentFacing = "left";
-        direction = "down";
-        solidArea = new Rectangle(x, y, gp.tileSize, gp.tileSize);
+        direction = "right";
+        currentFacing = "right";
+        solidArea = new Rectangle(x, y, width, height);
     }
-    
-    
+
     public void getPlayerImageByLoop() {
         try {
-            // >> TẢI IDLE FRAMES (idle1.png -> idle10.png)
             for (int i = 0; i < SWIM_IDLE_FRAMES; i++) {
-                String fileName = "/res/idle" + (i + 1) + ".png";
-                idleFrames[i] = ImageIO.read(getClass().getResourceAsStream(fileName));
+                idleFrames[i] = ImageIO.read(getClass().getResourceAsStream("/res/idle" + (i + 1) + ".png"));
+                swimFrames[i] = ImageIO.read(getClass().getResourceAsStream("/res/swim" + (i + 1) + ".png"));
             }
-
-           
-            for (int i = 0; i < SWIM_IDLE_FRAMES; i++) {
-                String fileName = "/res/swim" + (i + 1) + ".png";
-                swimFrames[i] = ImageIO.read(getClass().getResourceAsStream(fileName));
-            }
-
-          
             for (int i = 0; i < TURN_FRAMES; i++) {
-                String fileName = "/res/turn" + (i + 1) + ".png";
-                turnFrames[i] = ImageIO.read(getClass().getResourceAsStream(fileName));
+                turnFrames[i] = ImageIO.read(getClass().getResourceAsStream("/res/turn" + (i + 1) + ".png"));
             }
-
         } catch (Exception e) {
-            System.err.println("Lỗi khi tải frame. Kiểm tra tên file và đường dẫn trong /res/");
             e.printStackTrace();
         }
     }
-    public void collisionChecker(Aquarium aq){
-        // Update solidArea position
-        solidArea.x = x;
-        solidArea.y = y;
 
-        // Assume no collision at start of check
-        collisionOn = false;
-
-        for (int i = 0; i < aq.entities.size(); i++) {
-            Entity e = aq.entities.get(i);
-            if (e == null) continue;
-
-            // Check intersection using helper method
-            if (solidArea.intersects(e.solidArea)) {
-                collisionOn = true;
-                // Basic behaviour: remove the entity (eaten/collected)
-                aq.entities.remove(i);
-                i--; // adjust index after removal
-            }
-        }
-    }
     public void update() {
+        // --- 1. MOVEMENT LOGIC (VECTOR) ---
+        double dx = mouseH.mouseX - (x + width / 2);
+        double dy = mouseH.mouseY - (y + height / 2);
+        double distance = Math.sqrt(dx*dx + dy*dy);
         
-        boolean isMoving = keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed;
-        String newDirection = direction;
-       
-        boolean shouldTurn = false;
-        if (isMoving){
-            if (keyH.upPressed == true) {
-                newDirection = "up";
-                y = Math.max(0, y - speed);
-            }
-            else if (keyH.downPressed == true) {
-                newDirection = "down";
-                y = Math.min(gp.screenHeight - gp.tileSize, y + speed);
-            }
-            else if (keyH.leftPressed == true) {
-                newDirection = "left";
-                x -= speed;
-                currentFacing = "left"; 
-                if (!state.equals("turn")) { state = "swim"; }
-            }
-            else if (keyH.rightPressed == true) {
-                newDirection = "right";
-                x+= speed;
-                // Kiểm tra quay đầu: Đang hướng trái, nhấn phải
-                if (currentFacing.equals("left")) { shouldTurn = true; } 
-                currentFacing = "right"; // Cập nhật hướng mặt
-            }
-            
-            
-            if (newDirection.equals("left") && currentFacing.equals("right")) {
-                currentFacing = "left";
-                shouldTurn = true;
-            } else if (newDirection.equals("right") && currentFacing.equals("left")) {
-                currentFacing = "right";
-                shouldTurn = true;
-            }
-            
-            if (shouldTurn) {
-                state = "turn";
-                spriteNum = 0; // Bắt đầu hoạt hình quay đầu
-            } else if (!state.equals("turn")) {
-                 // Nếu không quay và không phải đang quay, thì bơi
-                 state = "swim";
-            }
-            direction = newDirection; // Cập nhật hướng di chuyển
-        } else {
-            // Không nhấn phím nào
-            if (!state.equals("turn")) { // Trừ khi đang trong quá trình quay
+        boolean isMoving = distance > 10; // Ngưỡng chết để tránh rung lắc
+        String newFacing = currentFacing;
+
+        if (isMoving) {
+            // Chuẩn hóa vector và di chuyển
+            double moveX = (dx / distance) * speed;
+            double moveY = (dy / distance) * speed;
+            x += moveX;
+            y += moveY;
+
+            // Xác định hướng dựa trên dx
+            if (dx > 0) newFacing = "right";
+            else if (dx < 0) newFacing = "left";
+        }
+
+        // --- 2. STATE & FACING LOGIC ---
+        // Logic quay đầu (Turn)
+        if (!newFacing.equals(currentFacing)) {
+            state = "turn";
+            currentFacing = newFacing;
+            spriteNum = 0; // Reset animation quay đầu
+        } 
+        
+        // Nếu không đang quay đầu
+        if (!state.equals("turn")) {
+            if (isMoving) {
+                state = "swim";
+            } else {
                 state = "idle";
             }
         }
-        // GIỚI HẠN DI 
-        x = Math.max(0, Math.min(gp.screenWidth - gp.tileSize, x));
-        y = Math.max(0, Math.min(gp.screenHeight - gp.tileSize, y));
-        
-        spriteCounter++; // vẽ lại hướng đi mỗi 10 frame
-        if (spriteCounter >10) {
-            if (spriteNum == 1) {
-                spriteNum = 2;
-            } else if (spriteNum == 2) {
-                spriteNum = 1;
-            }
-            spriteCounter = 0;   
-        }
-        int animationSpeed = 4; 
+
+        // --- 3. BOUNDARY CHECK ---
+        if(x < 0) x = 0;
+        if(x > gp.screenWidth - width) x = gp.screenWidth - width;
+        if(y < 0) y = 0;
+        if(y > gp.screenHeight - height) y = gp.screenHeight - height;
+
+        // --- 4. HITBOX UPDATE ---
+        solidArea.x = (int)x;
+        solidArea.y = (int)y;
+
+        // --- 5. ANIMATION COUNTER (Rất quan trọng) ---
+        spriteCounter++;
+        int animationSpeed = 4; // Tốc độ chuyển frame
 
         if (spriteCounter > animationSpeed) {
+            spriteNum++;
             spriteCounter = 0;
-            spriteNum++; 
-            
+
             if (state.equals("turn")) {
-                // Hoạt hình Quay Đầu (Turn)
                 if (spriteNum >= TURN_FRAMES) {
                     spriteNum = 0;
-                    state = "idle"; // Quay đầu xong, chuyển về đứng yên
+                    state = "swim"; // Quay xong thì bơi tiếp
                 }
-            } else if (state.equals("swim")) {
-                // Hoạt hình Bơi (Swim)
+            } else {
+                // Swim hoặc Idle
                 if (spriteNum >= SWIM_IDLE_FRAMES) {
-                    spriteNum = 0; // Lặp lại hoạt hình bơi
-                }
-            } else if (state.equals("idle")) {
-                // Hoạt hình Đứng Yên (Idle)
-                 if (spriteNum >= SWIM_IDLE_FRAMES) {
-                    spriteNum = 0; // Lặp lại hoạt hình đứng yên
+                    spriteNum = 0;
                 }
             }
         }
     }
+
     public void draw(Graphics2D g2) {
         BufferedImage currentFrame = null;
-        
-        // 1. CHỌN FRAME DỰA TRÊN TRẠNG THÁI VÀ spriteNum
-        // Luôn kiểm tra bounds để tránh lỗi IndexOutOfBoundsException
-        if (state.equals("turn") && spriteNum < TURN_FRAMES) {
-            currentFrame = turnFrames[spriteNum];
-        } else if (state.equals("swim") && spriteNum < SWIM_IDLE_FRAMES) {
-            currentFrame = swimFrames[spriteNum];
-        } else if (state.equals("idle") && spriteNum < SWIM_IDLE_FRAMES) {
-            currentFrame = idleFrames[spriteNum];
+
+        // An toàn: Kiểm tra null array trước khi truy cập
+        if (idleFrames == null || swimFrames == null || turnFrames == null) return;
+
+        // Chọn frame
+        if (state.equals("turn")) {
+            // Clamp spriteNum để tránh lỗi ArrayOutOfBounds
+            if (spriteNum < TURN_FRAMES) currentFrame = turnFrames[spriteNum];
+        } else if (state.equals("swim")) {
+            if (spriteNum < SWIM_IDLE_FRAMES) currentFrame = swimFrames[spriteNum];
+        } else { // idle
+            if (spriteNum < SWIM_IDLE_FRAMES) currentFrame = idleFrames[spriteNum];
         }
 
         if (currentFrame != null) {
-            
-            int targetWidth = gp.tileSize;
+            int targetWidth = gp.tileSize; 
             int targetHeight = gp.tileSize;
             
             AffineTransform oldTransform = g2.getTransform();
-
-            // >> BƯỚC 2: DỊCH CHUYỂN G2D ĐẾN VỊ TRÍ CỦA CÁ
             g2.translate(x, y);
-            // 2. XỬ LÝ LẬT HÌNH (FLIP) CHO HƯỚNG DI CHUYỂN TRÁI/PHẢI
-           if (currentFacing.equals("right") && !state.equals("turn")) {
-            // Lật hình ngang qua trục Y và dịch chuyển ngược lại bằng targetWidth
-            g2.transform(AffineTransform.getScaleInstance(-1, 1));
-            g2.translate(-targetWidth, 0); 
-            }
-            // Lưu ý: Nếu trạng thái là "turn", ta không lật.
 
-           
+            // Logic Flip: Nếu đang nhìn sang phải, lật hình (giả sử ảnh gốc hướng sang trái)
+            // LƯU Ý: Kiểm tra ảnh gốc của bạn. 
+            // Nếu ảnh gốc hướng TRÁI -> code dưới đúng.
+            // Nếu ảnh gốc hướng PHẢI -> xóa logic transform scale(-1,1) hoặc đảo điều kiện.
+            if (currentFacing.equals("right") && !state.equals("turn")) {
+                g2.transform(AffineTransform.getScaleInstance(-1, 1));
+                g2.translate(-targetWidth, 0);
+            }
+
             g2.drawImage(currentFrame, 0, 0, targetWidth, targetHeight, null);
             g2.setTransform(oldTransform);
-            }
+        }
     }
 }
-

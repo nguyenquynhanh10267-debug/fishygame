@@ -43,6 +43,7 @@ classDiagram
     class UI {
         -window : JFrame
         -gamePanel : GamePanel
+        -loadImage: Image
         +startGame() : void
         +paintComponent(Graphics g) : void
     }
