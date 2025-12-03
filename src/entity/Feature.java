@@ -2,67 +2,74 @@ package entity;
 
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
-import java.io.IOException;
+
+import main.GamePanel;
 
 public class Feature {
     
-    // Định nghĩa các loại cá (Blueprint)
     public static class MonsterType {
         String name;
+        String folderPath; // Thư mục chứa ảnh (VD: /res/minnow/)
         int speed;
-        int width, height; // Kích thước hitbox (liên quan đến size để ăn)
-        BufferedImage imageLeft, imageRight;
+        int width, height;
+        int scoreValue;
         
-        public MonsterType(String name, int speed, int w, int h) {
+        // Mảng chứa animation frames
+        public BufferedImage[] swimFrames;
+        public BufferedImage[] turnFrames;
+        public BufferedImage[] eatFrames;
+        public BufferedImage[] idleFrames;
+
+        public MonsterType(String name, String folder, int speed, int w, int h, int score, 
+                           int swimCount, int turnCount, int eatCount, int idleCount) {
             this.name = name;
+            this.folderPath = folder;
             this.speed = speed;
             this.width = w;
             this.height = h;
-            loadImages();
+            this.scoreValue = score;
+            
+            // Load ảnh động
+            this.swimFrames = loadFrames(name + "swim", swimCount);
+            this.turnFrames = loadFrames(name + "turn", turnCount);
+            
+            if (eatCount > 0) this.eatFrames = loadFrames(name + "eat", eatCount);
+            if (idleCount > 0) this.idleFrames = loadFrames(name + "idle", idleCount);
         }
 
-        private void loadImages() {
+        private BufferedImage[] loadFrames(String prefix, int count) {
+            BufferedImage[] frames = new BufferedImage[count];
             try {
-
-                imageLeft = ImageIO.read(getClass().getResourceAsStream("/res/" + name + "swim1.png"));
-                imageRight = ImageIO.read(getClass().getResourceAsStream("/res/" + name + "swim2.png"));
-            } catch (IOException | IllegalArgumentException e) {
-                System.err.println("Không tìm thấy ảnh cho quái vật: " + name);
-                // Tạo ảnh placeholder nếu lỗi để tránh crash
-                imageLeft = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-                imageRight = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+                for (int i = 0; i < count; i++) {
+                    // Path: /res/folder/prefix + index + .png
+                    String path = folderPath + prefix + (i + 1) + ".png";
+                    frames[i] = ImageIO.read(getClass().getResourceAsStream(path));
+                }
+            } catch (Exception e) {
+                System.err.println("Error loading: " + prefix);
             }
+            return frames;
         }
-    }
-
-    // Danh sách các loại quái vật (Pre-loaded)
-    public MonsterType oyster, jellyPink, john, lion, puffShark;
-
-    public Feature() {
-        setupMonsters();
-    }
-
-    public void setupMonsters() {
-        // Cấu hình thông số: Tên, Tốc độ, Rộng, Cao
-        // Logic: Size càng to thì càng khó ăn
-        oyster = new MonsterType("oyster", 0, 40, 40);      // Đứng im hoặc rất chậm
-        jellyPink = new MonsterType("jelly", 3, 50, 50);    
-        john = new MonsterType("john", 4, 60, 45);
-        lion = new MonsterType("lion", 5, 80, 80);
-        puffShark = new MonsterType("puff", 7, 120, 100);   // Boss nhỏ
     }
     
-    // Hàm factory để tạo Entity dựa trên Type
-    public Entity createMonster(MonsterType type) {
-        Entity monster = new Entity();
+    // Hàm factory tạo Entity từ Type
+    public Enemy createMonster(MonsterType type, GamePanel gp) {
+        // >> KHỞI TẠO ENEMY
+        Enemy monster = new Enemy(gp); 
+        
         monster.name = type.name;
         monster.speed = type.speed;
         monster.width = type.width;
         monster.height = type.height;
-        monster.up1 = type.imageLeft;  // Gán ảnh tạm
-        monster.up2 = type.imageRight; // Có thể mở rộng class Entity để chứa imageLeft/Right riêng
+        monster.scoreValue = type.scoreValue;
         
-        // Cập nhật hitbox
+        // Copy references
+        monster.swimFrames = type.swimFrames;
+        monster.turnFrames = type.turnFrames;
+        monster.eatFrames = type.eatFrames;   
+        monster.idleFrames = type.idleFrames; 
+        
+        // Setup hitbox
         monster.solidArea = new java.awt.Rectangle(0, 0, type.width, type.height);
         return monster;
     }

@@ -48,7 +48,7 @@ public class UI extends JPanel {
         titleLogo = loadImage("/res/screen/gametitle.png");
         seashellButton1 = loadImage("/res/screen/sanho1.png");
         seashellButton2 = loadImage("/res/screen/sanho2.png");
-        andyFish = loadImage("/res/idle3.png");
+        andyFish = loadImage("/res/angelfish/angelfishidle1.png");
         // xu ly click chuot de chuyen man hinh
         this.addMouseListener(new MouseAdapter() {
             @Override
@@ -171,8 +171,8 @@ public class UI extends JPanel {
         // 6. VẼ CÁ VÀ NHÃN "Andy"
         g2d.setFont(bodyFont); // Trả về font bình thường
         if (andyFish != null) {
-            int fishW = (int)(frameW * 0.11); // Cá rộng khoảng 18% khung
-            int fishH = (int)(fishW * 0.6);   // Tỷ lệ chiều cao
+            int fishW = (int)(frameW * 0.08); // Cá rộng khoảng 18% khung
+            int fishH = (int)(fishW * 0.8);   // Tỷ lệ chiều cao
             
             int fishX = textStartX + (int)(frameW * 0.63); 
             // Nằm ngang hàng với đoạn văn bản thứ 2
