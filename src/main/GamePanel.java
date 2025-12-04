@@ -6,7 +6,6 @@ import entity.Feature;
 import entity.Player;
 import input.KeyHandler;
 import input.MouseHandler;
-
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -67,6 +66,7 @@ public class GamePanel extends JPanel implements Runnable {
     // Input Handlers
     public MouseHandler mouseH;
     public KeyHandler keyH;
+    Sound sound = new Sound();
     
     public CollisionChecker cChecker = new CollisionChecker(this);
     public Feature feature = new Feature();
@@ -139,6 +139,7 @@ public class GamePanel extends JPanel implements Runnable {
         
         newGameRect = new Rectangle(startX, centerY - ngH/2, ngW, ngH);
         exitRect = new Rectangle(startX + ngW + gap, centerY - exH/2, exW, exH);
+        //playMusic(0);
     }
 
     public void resetGame() {
@@ -150,6 +151,7 @@ public class GamePanel extends JPanel implements Runnable {
         banner.show("LEVEL 1", 180);
         startBannerShown = false;
         gameState = playState;
+        playMusic(0); // Restart background music
     }
 
     public void startGameThread() {
@@ -221,6 +223,7 @@ public class GamePanel extends JPanel implements Runnable {
             cChecker.checkPlayerVsEnemies(player, aquarium.entities);
             
             if (score >= currentLevel.winScore) {
+                stopMusic();// stop background music
                 gameState = winState;
                 banner.show("VICTORY", -1);
             }
@@ -254,6 +257,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         // 3. Draw Overlay (Win/Lose)
         if (gameState == winState || gameState == gameOverState) {
+            stopMusic();
             g2.setColor(new Color(0, 0, 0, 150)); 
             g2.fillRect(0, 0, screenWidth, screenHeight);
             if (gameState == winState) {
@@ -267,12 +271,12 @@ public class GamePanel extends JPanel implements Runnable {
         
         // 4. Draw Pause Menu
         if (gameState == pauseState) {
+            stopMusic();
             drawPauseScreen(g2);
         }
 
         // 5. Draw Banner
         banner.draw(g2);
-        
         g2.dispose();
     }
     
@@ -280,20 +284,20 @@ public class GamePanel extends JPanel implements Runnable {
         // Lớp nền tối
         g2.setColor(new Color(0, 0, 0, 150));
         g2.fillRect(0, 0, screenWidth, screenHeight);
-        
         // Vẽ khung Menu
         if (menuBg != null) g2.drawImage(menuBg, menuX, menuY, null);
         
         // --- TÍNH TOÁN HIỆU ỨNG SÓNG (BOBBING EFFECT) ---
         // Biên độ 5px, tốc độ 0.1
         int waveOffset = (int)(Math.sin(menuTick * 0.1) * 5); 
-
+        
         // Vẽ nút New Game
         if (btnNewGame != null) {
             int y = newGameRect.y;
             // Nếu đang hover (commandNum == 0), cộng thêm sóng
             if (commandNum == 0) y += waveOffset;
             g2.drawImage(btnNewGame, newGameRect.x, y, newGameRect.width, newGameRect.height, null);
+            playMusic(0);
         }
         
         // Vẽ nút Exit
@@ -316,5 +320,18 @@ public class GamePanel extends JPanel implements Runnable {
             g2.setFont(new Font("Arial", Font.ITALIC, 14));
             g2.drawString("[M] Menu", screenWidth - 100, 40);
         }
+    }
+
+    public void playMusic(int i) {
+        sound.setFile(i);
+        sound.play();
+        sound.loop();
+    }
+    public void stopMusic() {
+        sound.stop();
+    }
+    public void playSE(int i) {
+        sound.setFile(i);
+        sound.play();
     }
 }

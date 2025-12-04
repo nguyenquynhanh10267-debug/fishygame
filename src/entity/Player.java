@@ -1,12 +1,12 @@
 package entity;
 
+import input.MouseHandler;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import main.GamePanel;
-import input.MouseHandler;
 
 public class Player extends Entity {
     GamePanel gp;
@@ -188,6 +188,7 @@ public class Player extends Entity {
             showEffect = true;
             effectCounter = 60; 
             System.out.println("LEVEL UP! Scale: " + scale);
+            gp.playSE(1);
         }
     }
 
@@ -247,5 +248,6 @@ public class Player extends Entity {
         state = "eat";
         spriteNum = 0;
         spriteCounter = 0;
+        gp.playSE(3);
     }
 }
