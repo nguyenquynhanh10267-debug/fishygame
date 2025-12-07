@@ -37,7 +37,7 @@ public class CollisionChecker {
         }
     }
 
-    private void processCollision(Player player, Enemy enemy, int index) {
+    public void processCollision(Player player, Enemy enemy, int index) {
         int playerSize = player.width * player.height;
         int enemySize = enemy.width * enemy.height;
 

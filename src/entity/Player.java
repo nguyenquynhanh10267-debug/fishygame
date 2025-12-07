@@ -18,7 +18,7 @@ public class Player extends Entity {
     final int SWIM_FRAMES = 15;
     final int TURN_FRAMES = 5;
     
-    // >> CẬP NHẬT KÍCH THƯỚC GỐC THEO ẢNH
+    // >> CẬP NHẬT KÍCH THƯỚC GỐC THEO ẢNH, size player
     final int BASE_WIDTH = 125; 
     final int BASE_HEIGHT = 105; 
     
@@ -38,6 +38,10 @@ public class Player extends Entity {
     private int currentLevel = 1; 
     private int effectCounter = 0; 
     private boolean showEffect = false;
+    
+    // >> BIẾN BẤT TỬ
+    public boolean invincible = false;
+    public int invincibleCounter = 0;
     
     public Player(GamePanel gp, MouseHandler mouseH) {
         this.gp = gp;
@@ -116,7 +120,12 @@ public class Player extends Entity {
         // Boundary Check
         if (exactX < 0) exactX = 0;
         if (exactX > gp.worldWidth - width) exactX = gp.worldWidth - width;
-        if (exactY < 0) exactY = 0;
+        final int HUD_HEIGHT = 120;
+        int topBoundary = HUD_HEIGHT;
+        // 2. Kiểm tra và giới hạn vị trí Y
+        if (exactY < topBoundary) {
+            exactY = topBoundary; // Đặt lại vị trí Y chính xác là mép dưới
+        }
         if (exactY > gp.worldHeight - height) exactY = gp.worldHeight - height;
 
         x = (int) exactX;
@@ -132,6 +141,7 @@ public class Player extends Entity {
                     spriteNum = 0; 
                 }
             }
+
         }
 
         // State Update
