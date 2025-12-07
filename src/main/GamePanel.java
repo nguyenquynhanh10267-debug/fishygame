@@ -6,7 +6,9 @@ import entity.Feature;
 import entity.Player;
 import input.KeyHandler;
 import input.MouseHandler;
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -19,8 +21,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
-import java.awt.AlphaComposite;
-import java.awt.Composite;
 
 public class GamePanel extends JPanel implements Runnable {
     
@@ -152,7 +152,7 @@ public class GamePanel extends JPanel implements Runnable {
         
         newGameRect = new Rectangle(startX, centerY - ngH/2 + 100, ngW, ngH);
         exitRect = new Rectangle(startX + ngW + gap, centerY - exH/2 + 100, exW, exH);
-        //playMusic(0);
+        playMusic(0);
     }
 
     public void resetGame() {
@@ -164,7 +164,6 @@ public class GamePanel extends JPanel implements Runnable {
         banner.show("LEVEL 1", 180);
         startBannerShown = false;
         gameState = playState;
-        playMusic(0); // Restart background music
     }
 
     public void startGameThread() {
@@ -327,7 +326,6 @@ public class GamePanel extends JPanel implements Runnable {
             y += waveOffset;
             // VẼ NÚT SÁNG (newgame2) KHI HOVER
             g2.drawImage(btnNewGame2, newGameRect.x, y, newGameRect.width, newGameRect.height, null);
-            playMusic(0);
         } else {
             // VẼ NÚT THƯỜNG KHI KHÔNG HOVER
             g2.drawImage(btnNewGame, newGameRect.x, y, newGameRect.width, newGameRect.height, null);
