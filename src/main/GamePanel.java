@@ -27,10 +27,10 @@ import java.awt.Shape;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import entity.Boss;
-import entity.RainBubble; // Import class bong bóng của bạn
+import entity.RainBubble; 
 import entity.StunBubble;
 import java.awt.geom.AffineTransform;
-import java.util.ArrayList; // Import thư viện danh sách của Java
+import java.util.ArrayList;
 
 public class GamePanel extends JPanel implements Runnable {
     // --- 1. SCREEN & WORLD SETTINGS ---
@@ -47,11 +47,11 @@ public class GamePanel extends JPanel implements Runnable {
     public int cameraY = 0;
 
     // --- 3. GAME STATE ---
-    public int gameState ; // quyết định game đang ở màn hình nào
-    public final int playState = 1;// đang chơi
-    public final int gameOverState = 2;// thua
-    public final int winState = 3;// win
-    public final int pauseState = 4;// tạm dừng
+    public int gameState ; 
+    public final int playState = 1;
+    public final int gameOverState = 2;
+    public final int winState = 3;
+    public final int pauseState = 4;
     public final int respawnState = 5;
     
     // --- 4. DATA ---
@@ -92,7 +92,7 @@ public class GamePanel extends JPanel implements Runnable {
     public BufferedImage bossBubbleImg;
     public ArrayList<Bomb> bombs = new ArrayList<>();
     public ArrayList<HeartItem> heartItems = new ArrayList<>();
-    public float redOverlayAlpha = 0f; // 0.0 (không đỏ) đến 1.0 (đỏ rực)
+    public float redOverlayAlpha = 0f; 
     public ArrayList<BubbleParticle> particles = new ArrayList<>();
 
     // --- 6. SYSTEM ---
@@ -163,12 +163,6 @@ public class GamePanel extends JPanel implements Runnable {
 
         playMusic(0);
 
-        // this.setPreferredSize(new Dimension(screenWidth, screenHeight));
-        // this.setBackground(Color.black);
-        // this.setDoubleBuffered(true);
-        
-        // // Rất quan trọng: Phải gọi hàm này để các Rect không bị null
-        // setupMenuPositions();
     }
 
     private void loadResources() {
@@ -232,7 +226,7 @@ public class GamePanel extends JPanel implements Runnable {
         musicRect = new Rectangle(optionStartX, commonY, btnSize, btnSize);
         soundRect = new Rectangle(optionStartX + btnSize + gap, commonY, btnSize, btnSize);
     }
-    // khôi phục toàn bộ trò chơi về trạng thái ban 
+    
     public void resetGame() {
         score = 0;
         lives = 3;
@@ -472,7 +466,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
     // Hàm bổ trợ để code update nhìn sạch hơn
     public void updateCamera() {
-        int marginX = 150; int marginY = 100;
+        int marginX = 250; int marginY = 200;
         int playerScreenX = player.x - cameraX;
         int playerScreenY = player.y - cameraY;
 

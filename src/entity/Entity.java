@@ -27,7 +27,6 @@ public class Entity {
     public String name;
     public int scoreValue;
     
-    // >> ĐÃ XÓA: dy, actionLockCounter (Vì đã chuyển sang Enemy.java)
     
     // Helpers
     public void startEating() {

@@ -20,18 +20,13 @@ public class Enemy extends Entity {
 
     public Enemy(GamePanel gp) {
         this.gp = gp;
-        // Ensure hitbox is always initialized to a safe default.
-        // Specific monster types will overwrite this after creation.
+        
         this.solidArea = new Rectangle(0, 0, this.width, this.height);
     }
 
-    /**
-     * Hàm update xử lý toàn bộ logic hành vi của Enemy
-     * @param allowMove: Biến này nhận từ Aquarium (để xử lý Slow Motion)
-     */
+    
     public void update(boolean allowMove) {
         
-        // 1. LOGIC DI CHUYỂN & AI (Chỉ chạy khi được phép)
         if (allowMove) {
             // Nếu đang quay đầu (Turn) thì đứng yên, không di chuyển vị trí
             if (!state.equals("turn")) {
@@ -40,22 +35,19 @@ public class Enemy extends Entity {
             }
         }
         
-        // 2. LOGIC ANIMATION (Chạy liên tục mỗi frame)
         updateAnimation();
     }
 
     private void updateAI() {
-        // Nếu là Level 2 trở lên VÀ là cá barracuda thì dùng logic đuổi
         if (gp.currentLevel.levelNum >= 2) {
             if("Anglerfish".equals(this.name) || "shark".equals(this.name) || "JohnDory".equals(this.name)){
                  huntPlayer();
             }
         } else {
-            // Nếu không phải barracuda hoặc không phải level 2, bơi bình thường
+           
             normalSwimAI();
         }
     }
-    // Tách logic bơi ngẫu nhiên ra hàm riêng
     private void normalSwimAI() {
         actionLockCounter++;
         int changeTime = 30 + rand.nextInt(30);
@@ -75,9 +67,7 @@ public class Enemy extends Entity {
 
     private void huntPlayer() {
         double distance = Math.sqrt(Math.pow(gp.player.x - this.x, 2) + Math.pow(gp.player.y - this.y, 2));
-
-        if (distance < 180) {
-            
+        if (distance < 220) {
             if (state.equals("swim")) { 
                 if (gp.player.x < this.x && direction.equals("right")) {
                     startTurning(); 
@@ -86,14 +76,13 @@ public class Enemy extends Entity {
                 }
             }
             
-            // Tăng tốc nhẹ
             if (direction.equals("left")) x -= 2 ; 
             else x += 1;
 
             if (gp.player.y > this.y) dy = 1;
             else if (gp.player.y < this.y) dy = -1;
         } else {
-            // QUAN TRỌNG: Gọi hàm bơi bình thường, KHÔNG gọi updateAI()
+           
             normalSwimAI();
         }
     }
